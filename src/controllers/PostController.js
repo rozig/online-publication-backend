@@ -87,4 +87,51 @@ actions.deletePost = (req, res) => {
   });
 };
 
+actions.createComment = (req,res) => {
+  req.checkBody('text','Comment text is required').notEmpty();
+
+  const errors = req.validationErrors();
+
+  if(errors) {
+    let response = {
+      code: 2000,
+      message: 'Missing some fields!',
+      data: []
+    };
+    errors.forEach((err) => {
+      response.data.push(err.msg);
+    });
+    return res.status(500).send(response);
+  }
+
+  Post.findById(req.params.id, (err, post) => {
+    if(err) {
+      return res.status(500).send({
+        code: 2000,
+        message: 'There was a problem getting information from the database'
+      });
+    }
+
+    const comment = {
+      author:req.userId,
+      text:req.body.text
+    }
+
+    post.createComment(comment)
+    .then(data=>{
+        return res.status(200).send({
+          code: 1000,
+          message: 'Comment successfully created!'
+          //data:data
+        });
+    }).catch(err=>{
+        return res.status(500).send({
+        code: 2000,
+        message: err
+        });
+    });
+
+  });
+}
+
 module.exports = actions;

@@ -18,7 +18,10 @@ const PostSchema = new mongoose.Schema({
         ref: 'User'
       },
       text: String,
-      created_date: Date
+      created_date: {
+      	type: Date,
+      	default: Date.now
+      }
     }
   ],
   upVotes: {
@@ -36,33 +39,33 @@ const PostSchema = new mongoose.Schema({
   updated_date: Date
 });
 
-PostSchema.methods.upVote = () => {
+PostSchema.methods.upVote = function() {
   this.upVotes++;
   return this.save();
 };
 
-PostSchema.methods.downVote = () => {
+PostSchema.methods.downVote = function() {
   this.downVotes++;
   return this.save();
 };
 
-PostSchema.methods.comment = (comment) => {
+PostSchema.methods.createComment = function(comment) {
   this.comments.push(comment);
   return this.save();
 };
 
-PostSchema.methods.setAuthor = (authorId) => {
+PostSchema.methods.setAuthor = function(authorId) {
   this.author = authorId;
   return this.save();
 };
 
-PostSchema.methods.getAuthorPosts = (authorId) => {
-  Post.find({author: authorId}).then((posts) => {
-    return posts;
-  });
-};
+// PostSchema.methods.getAuthorPosts = function(authorId) {
+//   // Post.find({author: authorId}).then((posts) {
+//   //   //return posts;
+//   // });
+// };
 
-PostSchema.methods.makeDraft = (draft) => {
+PostSchema.methods.makeDraft = function(draft) {
   this.draft = draft;
   return this.save();
 };
