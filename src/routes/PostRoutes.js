@@ -10,8 +10,8 @@ router.delete('/:id', postController.deletePost);
 
 // #start eta's code
 router.post('/:id/comment',postController.createComment);
-//router.put('/:id/:commentid',postController.updateComment);
-//router.delete(':id/:commentid',postController.deleteComment);
+router.put('/:id/comment/:comment_id',postController.updateComment);
+router.delete('/:id/comment/:comment_id',postController.deleteComment);
 // #end eta's code
 
 module.exports = router;

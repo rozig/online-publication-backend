@@ -134,4 +134,75 @@ actions.createComment = (req,res) => {
   });
 }
 
+actions.deleteComment = (req,res)=>{
+
+  Post.findById(req.params.id,(err,post)=>{
+
+    if(err){
+      return res.status(500).send({
+        code:2000,
+        message: 'There was a problem getting information from the database'
+      });
+    }
+
+    post.deleteComment(req.params.comment_id,req.userId).then(data=>{
+      return res.status(200).send({
+        code:1000,
+        message: 'Comment has deleted!'
+      });
+    }).catch(err=> {
+      //console.log(err);
+      return res.status(500).send({
+        code:2000,
+        message:err
+      });
+    });
+
+  });
+}
+
+actions.updateComment = (req,res)=>{
+
+  req.checkBody('text','Comment text is required').notEmpty();
+
+  const errors = req.validationErrors();
+
+  if(errors) {
+    let response = {
+      code: 2000,
+      message: 'Missing some fields!',
+      data: []
+    };
+    errors.forEach((err) => {
+      response.data.push(err.msg);
+    });
+    return res.status(500).send(response);
+  }
+
+  Post.findById(req.params.id,(err,post)=>{
+
+    if(err){
+      return res.status(500).send({
+        code:2000,
+        message: 'There was a problem getting information from the database'
+      });
+    }
+
+    post.updateComment(req.params.comment_id,req.userId,req.body.text).then(data=>{
+      return res.status(200).send({
+        code:1000,
+        message: 'Comment has updated!',
+        data: req.body.text
+      });
+    }).catch(err=> {
+      //console.log(err);
+      return res.status(500).send({
+        code:2000,
+        message:err
+      });
+    });
+
+  });
+}
+
 module.exports = actions;
