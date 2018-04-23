@@ -7,6 +7,7 @@ const UserSchema = new mongoose.Schema({
   username: String,
   bio: String,
   profile_picture: String,
+  password: String,
   followers: [
     {
       type: mongoose.Schema.Types.ObjectId,
