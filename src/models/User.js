@@ -3,8 +3,16 @@ const mongoose = require('mongoose');
 const UserSchema = new mongoose.Schema({
   firstname: String,
   lastname: String,
-  email: String,
-  username: String,
+  email: {
+    type: String,
+    unique: true,
+    required: true
+  },
+  username: {
+    type: String,
+    unique: true,
+    required: true
+  },
   bio: String,
   profile_picture: String,
   password: String,
@@ -27,16 +35,29 @@ const UserSchema = new mongoose.Schema({
   updated_date: Date
 });
 
-UserSchema.methods.follow = (userId) => {
+UserSchema.methods.follow = function(userId) {
+  let type;
   if(this.following.indexOf(userId) === -1) {
-    this.following.push(user_id);
+    this.following.push(userId);
+    type = 'follow';
+  } else {
+    this.following.pull(userId);
+    type = 'unfollow';
   }
-  return this.save();
+  this.save();
+  return {type: type};
 };
 
-UserSchema.methods.addFollower = (user) => {
-  this.followers.push(user);
-  return this.save();
+UserSchema.methods.addFollower = function(userId) {
+  if(this.followers.indexOf(userId) === -1) {
+    this.followers.push(userId);
+    type = 'follow';
+  } else {
+    this.followers.pull(userId);
+    type = 'unfollow';
+  }
+  this.save();
+  return {type: type};
 }
 
 mongoose.model('User', UserSchema);
