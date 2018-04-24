@@ -1,17 +1,17 @@
 const express = require('express');
 const router = express.Router();
 
+const { checkAuthentication } = require('./../middlewares/AuthMiddlewares');
+
 const postController = require('./../controllers/PostController');
 
-router.post('/', postController.createPost);
+router.post('/', checkAuthentication, postController.createPost);
 router.get('/:id', postController.readPost);
-router.put('/:id', postController.updatePost);
-router.delete('/:id', postController.deletePost);
-
-// #start eta's code
-router.post('/:id/comment',postController.createComment);
-router.put('/:id/comment/:comment_id',postController.updateComment);
-router.delete('/:id/comment/:comment_id',postController.deleteComment);
-// #end eta's code
+router.put('/:id', checkAuthentication, postController.updatePost);
+router.delete('/:id', checkAuthentication, postController.deletePost);
+router.post('/:id/vote', checkAuthentication, postController.vote);
+router.post('/:id/comment', checkAuthentication, postController.createComment);
+router.put('/:id/comment/:comment_id', checkAuthentication, postController.updateComment);
+router.delete('/:id/comment/:comment_id', checkAuthentication, postController.deleteComment);
 
 module.exports = router;
