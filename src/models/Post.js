@@ -26,14 +26,28 @@ const PostSchema = new mongoose.Schema({
   ],
   upVotes: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Vote'
+      author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      created_date: {
+        type: Date,
+        require: true,
+        default: Date.now
+      }
     }
   ],
   downVotes: [
     {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Vote'
+      author: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+      },
+      created_date: {
+        type: Date,
+        require: true,
+        default: Date.now
+      }
     }
   ],
   created_date: {
@@ -47,48 +61,88 @@ const PostSchema = new mongoose.Schema({
   }
 });
 
-PostSchema.methods.vote = function(type, userId) {
-  if(type === 'upvote') {
+PostSchema.methods.upVote = function(userId) {
+
+  const upVote = this.upVotes.find(vote=>vote.author == userId);
+  const downVote = this.downVotes.find(vote=>vote.author == userId);
+
+  console.log(upVote);
+
+  if(!upVote){
     this.upVotes.push({author: userId});
-  } else {
+    if(downVote)
+      this.downVotes.pull(downVote);
+  }
+  else
+    this.upVotes.pull(upVote); 
+
+  return this.save();
+
+};
+
+PostSchema.methods.downVote = function(userId) {
+
+  const downVote = this.downVotes.find(vote=>vote.author == userId);
+  const upVote = this.upVotes.find(vote=>vote.author == userId);
+
+  if(!downVote){
     this.downVotes.push({author: userId});
+    if(upVote) 
+      this.upVotes.pull(upVote);
   }
+  else
+    this.downVotes.pull(downVote); 
+
+  return this.save();
+
+};
+
+
+
+PostSchema.methods.addUpVote = function(vote_id) {
+  
+  this.upVotes.push(vote_id);
+  return this.save();
+
+};
+
+PostSchema.methods.deleteUpVote = function(vote_id) {
+  
+  this.upVotes.pull(vote_id);
+  return this.save();
+  
+};
+
+PostSchema.methods.addComment = function(commentid) {
+  
+  this.comments.push(commentid);
   return this.save();
 };
 
-PostSchema.methods.createComment = function(comment, userId) {
-  this.comments.push({text: comment, author: userId});
-  return this.save();
-};
+PostSchema.methods.deleteComment = function(commentId) {
 
-PostSchema.methods.deleteComment = function(commentId, userId) {
-  const comment = this.comments.find(comment => comment._id == commentId);
+  const comment = this.comments.pull(commentId);
+
   if(!comment) {
     return Promise.reject({error: 'Comment not found!'});
   }
 
-  if(comment.author == userId) {
-    this.comments = this.comments.filter(comment => comment._id != commentId);
-  } else {
-    return Promise.reject({error: 'User has not permission for this!'});
-  }
+  this.comments = this.comments.filter(comment => comment._id != commentId);
+
   return this.save();
 };
 
-PostSchema.methods.updateComment = function(commentId, userId, newText) {
+PostSchema.methods.updateComment = function(commentId, newText) {
+
   const comment = this.comments.find(comment => comment._id == commentId);
+
   if(!comment) {
     return Promise.reject({error: 'Comment not found!'});
   }
-
-  if(comment.author == userId) {
-    this.comments.forEach(comment => {
+  this.comments.forEach(comment => {
       if(comment._id == commentId)
         comment.text = newText;
-    });
-  } else {
-    return Promise.reject({error: 'User has not permission for this!'});
-  }
+  });
   return this.save();
 };
 
