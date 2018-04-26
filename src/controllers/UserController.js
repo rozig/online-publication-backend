@@ -160,4 +160,28 @@ actions.checkAvailablity = (req, res) => {
   });
 };
 
+actions.getUserByUsername = (req, res) => {
+  User.findOne({username: req.params.username}, {password: 0, __v: 0}, (err, user) => {
+    if(err) {
+      return res.status(500).send({
+        code: 2000,
+        message: 'There was a problem getting user information.'
+      });
+    }
+
+    if(!user) {
+      return res.status(404).send({
+        code: 2000,
+        message: 'User not found.'
+      });
+    }
+
+    return res.status(200).send({
+      code: 1000,
+      message: 'Successful!',
+      data: user
+    });
+  });
+};
+
 module.exports = actions;
