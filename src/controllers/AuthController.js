@@ -103,4 +103,22 @@ actions.login = (req, res) => {
   });
 };
 
+actions.checkAuth = (req, res) => {
+  const token = req.headers['x-token'];
+  if(!token) {
+    let response = {
+      code: 3000,
+      message: 'Authentication token is missing!'
+    };
+    return res.status(500).send(response);
+  }
+
+  jwt.verify(token, process.env.SECRET, (err, decoded) => {
+    if(err) {
+      return res.status(500).send(false);
+    }
+    return res.status(200).send(true);
+  });
+};
+
 module.exports = actions;
