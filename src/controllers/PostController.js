@@ -322,6 +322,7 @@ actions.getPostsByUser = (req, res) => {
         }
       }
     })
+    .sort('-created_date')
     .exec((err, posts) => {
       if(err) {
         return res.status(500).send({
