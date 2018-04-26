@@ -14,6 +14,10 @@ const PostSchema = new mongoose.Schema({
     required: true,
     default: false
   },
+  image: {
+    type: String,
+    required: true
+  },
   author: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User'
@@ -74,7 +78,7 @@ PostSchema.methods.upVote = function(userId) {
       this.downVotes.pull(downVote);
   }
   else
-    this.upVotes.pull(upVote); 
+    this.upVotes.pull(upVote);
 
   return this.save();
 
@@ -87,11 +91,11 @@ PostSchema.methods.downVote = function(userId) {
 
   if(!downVote){
     this.downVotes.push({author: userId});
-    if(upVote) 
+    if(upVote)
       this.upVotes.pull(upVote);
   }
   else
-    this.downVotes.pull(downVote); 
+    this.downVotes.pull(downVote);
 
   return this.save();
 
@@ -100,21 +104,21 @@ PostSchema.methods.downVote = function(userId) {
 
 
 PostSchema.methods.addUpVote = function(vote_id) {
-  
+
   this.upVotes.push(vote_id);
   return this.save();
 
 };
 
 PostSchema.methods.deleteUpVote = function(vote_id) {
-  
+
   this.upVotes.pull(vote_id);
   return this.save();
-  
+
 };
 
 PostSchema.methods.addComment = function(commentid) {
-  
+
   this.comments.push(commentid);
   return this.save();
 };
