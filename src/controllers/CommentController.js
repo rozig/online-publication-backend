@@ -47,11 +47,28 @@ actions.createComment = (req, res) => {
       }
 
       post.addComment(comment._id).then(data => {
-        return res.status(200).send({
-          code: 1000,
-          message: 'Comment created successfully',
-          data: data
+
+        //console.log(comment);
+        comment.populate('author', {
+        firstname: 1,
+        lastname: 1,
+        email: 1,
+        username: 1,
+        profile_picture: 1
+        }, (err, _comment) => {
+          if(err) {
+            return res.status(500).send({
+              code: 2000,
+              message: 'There was a problem getting post'
+            });
+          }
+          return res.status(200).send({
+            code: 1000,
+            message: 'Comment successfully created!',
+            data: _comment
+          });
         });
+
       }).catch(err => {
         return res.status(500).send({
           code: 2000,

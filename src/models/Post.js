@@ -70,7 +70,7 @@ PostSchema.methods.upVote = function(userId) {
   const upVote = this.upVotes.find(vote=>vote.author == userId);
   const downVote = this.downVotes.find(vote=>vote.author == userId);
 
-  console.log(upVote);
+  //console.log(upVote);
 
   if(!upVote){
     this.upVotes.push({author: userId});
