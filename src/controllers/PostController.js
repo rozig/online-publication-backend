@@ -2,6 +2,8 @@ const Post = require('./../models/Post');
 const User = require('./../models/User');
 const Comment = require('./../models/Comment');
 
+const jwt = require('jsonwebtoken');
+
 let actions = {};
 
 actions.createPost = (req, res) => {
@@ -361,52 +363,120 @@ actions.getPostsByUser = (req, res) => {
   });
 };
 
-actions.getPosts = (req, res) => {
-  Post.find()
-    .sort('-created_date')
-    .limit(9)
-    .populate('author', {
-        firstname: 1,
-        lastname: 1,
-        email: 1,
-        username: 1,
-        profile_picture: 1
-    })
-    .populate({
-      path: 'comments',
-      model: 'Comment',
-      select: {
-        _id: 1,
-        text: 1,
-        author: 1,
-        created_date: 1
-      },
-      populate: {
-        path: 'author',
-        model: 'User',
-        select: {
+actions.getFeedPosts = (req, res) => {
+  const token = req.headers['x-token'];
+  if(token) {
+    jwt.verify(token, process.env.SECRET, (err, decoded) => {
+      if(err) {
+        return res.status(500).send({
+          code: 3000,
+          message: 'Failed to authenticate token.'
+        });
+      }
+
+      User.findById(decoded.id, (err, user) => {
+        if(!user) {
+          return res.status(500).send({
+            code: 2000,
+            message: 'User not found.'
+          });
+        }
+        let postAuthors = user.following;
+        postAuthors.push(user.id);
+        Post.find({author: { $in: postAuthors }})
+          .sort('-created_date')
+          .limit(9)
+          .populate('author', {
+              firstname: 1,
+              lastname: 1,
+              email: 1,
+              username: 1,
+              profile_picture: 1
+          })
+          .populate({
+            path: 'comments',
+            model: 'Comment',
+            select: {
+              _id: 1,
+              text: 1,
+              author: 1,
+              created_date: 1
+            },
+            populate: {
+              path: 'author',
+              model: 'User',
+              select: {
+                firstname: 1,
+                lastname: 1,
+                email: 1,
+                username: 1,
+                profile_picture: 1
+              }
+            }
+          })
+          .exec((err, posts) => {
+            if(err) {
+              return res.status(500).send({
+                code: 2000,
+                message: 'There was a problem getting post'
+              });
+            }
+
+            return res.status(200).send({
+              code: 1000,
+              message: 'Successful!',
+              data: posts
+            });
+          });
+      });
+    });
+  } else {
+    Post.find()
+      .sort('-created_date')
+      .limit(9)
+      .populate('author', {
           firstname: 1,
           lastname: 1,
           email: 1,
           username: 1,
           profile_picture: 1
+      })
+      .populate({
+        path: 'comments',
+        model: 'Comment',
+        select: {
+          _id: 1,
+          text: 1,
+          author: 1,
+          created_date: 1
+        },
+        populate: {
+          path: 'author',
+          model: 'User',
+          select: {
+            firstname: 1,
+            lastname: 1,
+            email: 1,
+            username: 1,
+            profile_picture: 1
+          }
         }
-      }
-    })
-    .exec((err, posts) => {
-      if(err) {
-        return res.status(500).send({
-          code: 2000,
-          message: 'There was a problem getting post'
-        });
-      }
+      })
+      .exec((err, posts) => {
+        if(err) {
+          return res.status(500).send({
+            code: 2000,
+            message: 'There was a problem getting post'
+          });
+        }
 
-      return res.status(200).send({
-        code: 1000,
-        message: 'Successful!',
-        data: posts
+        return res.status(200).send({
+          code: 1000,
+          message: 'Successful!',
+          data: posts
+        });
       });
-    });
+  }
 };
 
 module.exports = actions;
