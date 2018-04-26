@@ -7,6 +7,7 @@ let actions = {};
 actions.createPost = (req, res) => {
   req.checkBody('title', 'title property is missing.').notEmpty();
   req.checkBody('body', 'body property is missing.').notEmpty();
+  req.checkBody('image', 'image property is missing.').notEmpty();
   req.checkBody('draft', 'draft property is missing.').notEmpty();
 
   const errors = req.validationErrors();
@@ -25,6 +26,7 @@ actions.createPost = (req, res) => {
   Post.create({
     title: req.body.title,
     body: req.body.body,
+    image: req.body.image,
     draft: req.body.draft,
     author: req.userId
   }, (err, post) => {
@@ -113,6 +115,7 @@ actions.readPost = (req, res) => {
 actions.updatePost = (req, res) => {
   req.checkBody('title', 'title property is missing.').notEmpty();
   req.checkBody('body', 'body property is missing.').notEmpty();
+  req.checkBody('image', 'image property is missing.').notEmpty();
   req.checkBody('draft', 'draft property is missing.').notEmpty();
 
   const errors = req.validationErrors();
@@ -151,9 +154,10 @@ actions.updatePost = (req, res) => {
       });
     }
 
-    if(post.draft != req.body.draft || post.title != req.body.title || post.body != req.body.body) {
+    if(post.draft != req.body.draft || post.title != req.body.title || post.body != req.body.body || post.image != req.body.image) {
       post.draft = req.body.draft;
       post.title = req.body.title;
+      post.image = req.body.image;
       post.body = req.body.body;
       post.save();
     } else {

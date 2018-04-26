@@ -14,7 +14,11 @@ const UserSchema = new mongoose.Schema({
     required: true
   },
   bio: String,
-  profile_picture: String,
+  profile_picture: {
+    type: String,
+    default: '/assets/profile-placeholder.jpg',
+    required: true
+  },
   password: String,
   followers: [
     {
