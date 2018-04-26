@@ -340,7 +340,9 @@ actions.getPostsByUser = (req, res) => {
 };
 
 actions.getPosts = (req, res) => {
-  Post.find({author: req.userId})
+  Post.find()
+    .sort('-created_date')
+    .limit(9)
     .populate('author', {
         firstname: 1,
         lastname: 1,
@@ -369,7 +371,6 @@ actions.getPosts = (req, res) => {
         }
       }
     })
-    .sort('-created_date')
     .exec((err, posts) => {
       if(err) {
         return res.status(500).send({
