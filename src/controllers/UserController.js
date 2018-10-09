@@ -122,6 +122,12 @@ actions.followUser = (req, res) => {
   });
 };
 
+actions.changeProfilePicture = (req, res) => {
+  try {
+    const col = await loadCollect
+  }
+};
+
 actions.checkAvailablity = (req, res) => {
   req.checkBody('type', 'type property is missing.');
   req.checkBody('value', 'value property is missing.');
